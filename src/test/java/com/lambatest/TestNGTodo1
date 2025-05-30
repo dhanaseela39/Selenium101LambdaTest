@@ -1,0 +1,95 @@
+package com.lambdatest;
+
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class TestNGTodo1 {
+
+    private RemoteWebDriver driver;
+    private String Status = "failed";
+
+    @BeforeMethod
+    public void setup(Method m, ITestContext ctx) throws MalformedURLException {
+        ChromeOptions browserOptions = new ChromeOptions();
+        browserOptions.setPlatformName("Windows 10");
+        browserOptions.setBrowserVersion("dev");
+
+        HashMap<String, Object> ltOptions = new HashMap<String, Object>();
+        ltOptions.put("username", "dhanaseelan39");
+        ltOptions.put("accessKey", "LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf");
+        ltOptions.put("visual", true);
+        ltOptions.put("video", true);
+        ltOptions.put("network", true);
+        ltOptions.put("project", "Untitled");
+        ltOptions.put("w3c", true);
+        ltOptions.put("plugin", "java-testNG");
+        ltOptions.put("build", "TestNG With Java");
+        ltOptions.put("name", m.getName() + " - " + this.getClass().getName());
+
+        String[] tags = new String[] { "Feature", "Falcon", "Severe" };
+        ltOptions.put("tags", tags);
+
+        browserOptions.setCapability("LT:Options", ltOptions);
+
+        driver = new RemoteWebDriver(
+            new URL("https://dhanaseelan39:LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf@hub.lambdatest.com/wd/hub"),
+            browserOptions
+        );
+    }
+
+    @Test
+    public void basicTest() throws InterruptedException {
+        String spanText;
+
+        System.out.println("Loading Url");
+        driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": \"Opening WebApp\", \"level\": \"info\"}}");
+        driver.get("https://lambdatest.github.io/sample-todo-app/");
+
+        System.out.println("Checking List Items");
+        driver.findElement(By.name("li1")).click();
+        driver.findElement(By.name("li2")).click();
+        driver.findElement(By.name("li3")).click();
+        driver.findElement(By.name("li4")).click();
+
+        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 6");
+        driver.findElement(By.id("addbutton")).click();
+        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 7");
+        driver.findElement(By.id("addbutton")).click();
+        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 8");
+        driver.findElement(By.id("addbutton")).click();
+
+        driver.findElement(By.name("li1")).click();
+        driver.findElement(By.name("li3")).click();
+        driver.findElement(By.name("li7")).click();
+        driver.findElement(By.name("li8")).click();
+
+        driver.findElement(By.id("sampletodotext")).sendKeys("Get Taste of Lambda and Stick to It");
+        driver.findElement(By.id("addbutton")).click();
+        driver.findElement(By.name("li9")).click();
+
+        spanText = driver.findElement(By.xpath("/html/body/div/div/div/ul/li[9]/span")).getText();
+        Assert.assertEquals("Get Taste of Lambda and Stick to It", spanText);
+
+        Status = "passed";
+        Thread.sleep(150);
+        System.out.println("Test Finished");
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": \"Adding Test Result and Closing Browser\", \"level\": \"info\"}}");
+        driver.executeScript("lambda-status=" + Status);
+        driver.quit();
+    }
+}
