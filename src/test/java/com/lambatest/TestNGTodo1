@@ -1,4 +1,4 @@
-package com.lambdatest;
+package dragAndDropSliders;
 
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -6,18 +6,19 @@ import java.net.URL;
 import java.util.HashMap;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-public class TestNGTodo1 {
+public class DragAndDropSlidersClass {
 
     private RemoteWebDriver driver;
-    private String Status = "failed";
+    private String Status = "passed";
 
     @BeforeMethod
     public void setup(Method m, ITestContext ctx) throws MalformedURLException {
@@ -37,7 +38,7 @@ public class TestNGTodo1 {
         ltOptions.put("build", "TestNG With Java");
         ltOptions.put("name", m.getName() + " - " + this.getClass().getName());
 
-        String[] tags = new String[] { "Feature", "Falcon", "Severe" };
+        String[] tags = new String[] { "Feature", "Magicleap", "Severe" };
         ltOptions.put("tags", tags);
 
         browserOptions.setCapability("LT:Options", ltOptions);
@@ -49,46 +50,35 @@ public class TestNGTodo1 {
     }
 
     @Test
-    public void basicTest() throws InterruptedException {
-        String spanText;
+    public void TestScenario2() throws InterruptedException {
+        driver.get("https://www.lambdatest.com/selenium-playground/");
+        driver.manage().window().maximize();
+        Thread.sleep(2000);
 
-        System.out.println("Loading Url");
-        driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": \"Opening WebApp\", \"level\": \"info\"}}");
-        driver.get("https://lambdatest.github.io/sample-todo-app/");
+        WebElement dragAndDropLink = driver.findElement(By.xpath("//a[@href='https://www.lambdatest.com/selenium-playground/drag-drop-range-sliders-demo']"));
+        dragAndDropLink.click();
 
-        System.out.println("Checking List Items");
-        driver.findElement(By.name("li1")).click();
-        driver.findElement(By.name("li2")).click();
-        driver.findElement(By.name("li3")).click();
-        driver.findElement(By.name("li4")).click();
+        Thread.sleep(1000);
+        WebElement slider3 = driver.findElement(By.xpath(".//*[@id='slider3']/div/input"));
+        Thread.sleep(1000);
 
-        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 6");
-        driver.findElement(By.id("addbutton")).click();
-        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 7");
-        driver.findElement(By.id("addbutton")).click();
-        driver.findElement(By.id("sampletodotext")).sendKeys(" List Item 8");
-        driver.findElement(By.id("addbutton")).click();
+        Actions move = new Actions(driver);
+        move.dragAndDropBy(slider3, 99, 0).perform();
 
-        driver.findElement(By.name("li1")).click();
-        driver.findElement(By.name("li3")).click();
-        driver.findElement(By.name("li7")).click();
-        driver.findElement(By.name("li8")).click();
+        WebElement expectedRange = driver.findElement(By.xpath(".//*[@id='slider3']/div/output"));
+        String expeRange = expectedRange.getText();
+        String actualRange = "95";
 
-        driver.findElement(By.id("sampletodotext")).sendKeys("Get Taste of Lambda and Stick to It");
-        driver.findElement(By.id("addbutton")).click();
-        driver.findElement(By.name("li9")).click();
-
-        spanText = driver.findElement(By.xpath("/html/body/div/div/div/ul/li[9]/span")).getText();
-        Assert.assertEquals("Get Taste of Lambda and Stick to It", spanText);
-
-        Status = "passed";
-        Thread.sleep(150);
-        System.out.println("Test Finished");
+        if (expeRange.contains(actualRange)) {
+            System.out.println("Range is matched");
+        } else {
+            System.out.println("Range is not matched!");
+            Status = "failed";
+        }
     }
 
     @AfterMethod
     public void tearDown() {
-        driver.executeScript("lambdatest_executor: {\"action\": \"stepcontext\", \"arguments\": {\"data\": \"Adding Test Result and Closing Browser\", \"level\": \"info\"}}");
         driver.executeScript("lambda-status=" + Status);
         driver.quit();
     }
