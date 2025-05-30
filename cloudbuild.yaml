@@ -1,0 +1,35 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: [
+      'run',
+      '-d',
+      '--name=lt',
+      'lambdatest/tunnel',
+      '--user', 'dhanaseelan39',
+      '--key', 'LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf',
+      '--tunnelName', 'GCloud',
+      '--infoAPIPort', '15000',
+      '--load-balanced'
+    ]
+
+  - name: curlimages/curl
+    args: [
+      '-s',
+      '--retry-connrefused',
+      '--connect-timeout', '5',
+      '--max-time', '5',
+      '--retry', '30',
+      '--retry-delay', '2',
+      '--retry-max-time', '60',
+      'http://localhost:15000/api/v1.0/info'
+    ]
+
+  - name: 'ubuntu'
+    args: ['sleep', '20']
+
+  - name: 'maven'
+    entrypoint: 'mvn'
+    args: ['test', '-P', 'local']
+    env:
+      - 'LT_USERNAME=dhanaseelan39'
+      - 'LT_ACCESS_KEY=LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf'
