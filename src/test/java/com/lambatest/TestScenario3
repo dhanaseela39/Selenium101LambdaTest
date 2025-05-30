@@ -1,0 +1,135 @@
+package inputFormSubmit;
+
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.Select;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+public class InputFormSubmitClass {
+
+    private RemoteWebDriver driver;
+    private String Status = "passed";
+
+    @BeforeMethod
+    public void setup(Method m, ITestContext ctx) throws MalformedURLException {
+        ChromeOptions browserOptions = new ChromeOptions();
+        browserOptions.setPlatformName("Windows 10");
+        browserOptions.setBrowserVersion("dev");
+
+        HashMap<String, Object> ltOptions = new HashMap<String, Object>();
+        ltOptions.put("username", "dhanaseelan39");
+        ltOptions.put("accessKey", "LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf");
+        ltOptions.put("visual", true);
+        ltOptions.put("video", true);
+        ltOptions.put("network", true);
+        ltOptions.put("project", "Untitled");
+        ltOptions.put("w3c", true);
+        ltOptions.put("plugin", "java-testNG");
+        ltOptions.put("build", "TestNG With Java");
+        ltOptions.put("name", m.getName() + " - " + this.getClass().getName());
+
+        String[] tags = new String[] { "Feature", "Magicleap", "Severe" };
+        ltOptions.put("tags", tags);
+
+        browserOptions.setCapability("LT:Options", ltOptions);
+
+        driver = new RemoteWebDriver(
+            new URL("https://dhanaseelan39:LT_XCGBANcvfgJCBTPQigHH69cNJ544HPq4MG8Kw6RDemf5Apf@hub.lambdatest.com/wd/hub"),
+            browserOptions
+        );
+    }
+
+    @Test
+    public void TestScenario3() throws InterruptedException {
+        driver.get("https://www.lambdatest.com/selenium-playground/");
+        driver.manage().window().maximize();
+        Thread.sleep(2000);
+
+        WebElement inputFormLink = driver.findElement(By.xpath("//a[@href='https://www.lambdatest.com/selenium-playground/input-form-demo']"));
+        inputFormLink.click();
+
+        WebElement submit = driver.findElement(By.xpath("//div[@class='text-right mt-20']/button"));
+        submit.click();
+
+        Thread.sleep(1000);
+
+        WebElement name = driver.findElement(By.xpath("//input[@type='text' and @name='name']"));
+        String expectedValidation = name.getAttribute("validationMessage");
+        String actualValidation = "Please fill out this field.";
+        Assert.assertEquals(expectedValidation, actualValidation);
+
+        if (expectedValidation.equals(actualValidation)) {
+            System.out.println("Validation is properly displayed.");
+        } else {
+            System.out.println("Validation is not properly displayed.");
+            Status = "failed";
+        }
+
+        name.sendKeys("TestName");
+
+        WebElement email = driver.findElement(By.xpath("//input[@type='email' and @name='email']"));
+        email.sendKeys("Test123@gmail.com");
+
+        WebElement password = driver.findElement(By.xpath("//input[@type='password' and @name='password']"));
+        password.sendKeys("Test@1234");
+
+        WebElement company = driver.findElement(By.id("company"));
+        company.sendKeys("TestCompany");
+
+        WebElement website = driver.findElement(By.id("websitename"));
+        website.sendKeys("Testdomain.com");
+
+        WebElement country = driver.findElement(By.name("country"));
+        Select select = new Select(country);
+        select.selectByVisibleText("United States");
+
+        WebElement city = driver.findElement(By.id("inputCity"));
+        city.sendKeys("TestCity");
+
+        WebElement address1 = driver.findElement(By.id("inputAddress1"));
+        address1.sendKeys("TestAddress1");
+
+        WebElement address2 = driver.findElement(By.id("inputAddress2"));
+        address2.sendKeys("TestAddress2");
+
+        WebElement state = driver.findElement(By.id("inputState"));
+        state.sendKeys("TestState");
+
+        WebElement zipcode = driver.findElement(By.id("inputZip"));
+        zipcode.sendKeys("360002");
+
+        submit.click();
+
+        Thread.sleep(2000);
+
+        WebElement successMessage = driver.findElement(
+            By.xpath("//p[contains(@class,'success-msg')]")
+        );
+        String actualMessage = successMessage.getText();
+        String expectedMessage = "Thanks for contacting us, we will get back to you shortly.";
+
+        if (actualMessage.equals(expectedMessage)) {
+            System.out.println("Success message is properly displayed.");
+        } else {
+            System.out.println("Success message is not properly displayed.");
+            Status = "failed";
+        }
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        driver.executeScript("lambda-status=" + Status);
+        driver.quit();
+    }
+}
